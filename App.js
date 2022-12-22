@@ -1,72 +1,30 @@
-import  React from 'react';
+import React from 'react';
 import Task from './components/Task';
 import TaskInput from './components/TaskInput';
-
+import store from './store';
+import { observer } from 'mobx-react';
 
 class App extends React.Component {
-  constructor() {
-    super();
-
-
-    this.state = {
-      tasks: [
-        {id: 0, title: 'Create todo-react app', done: false},
-        {id: 1, title: 'Make a video about it', done: true},
-        {id: 2, title: 'Create simple todo-app', done: false}
-      ]
-    };
-  }
-
-  addTask = task => {
-    this.setState(state => {
-      let {tasks} = state;
-      tasks.push({
-        id: tasks.length !== 0 ? task.length : 0,
-        title: task,
-        done: false
-      });
-      return tasks;
-    });
-  };
-
-  doneTask = id => {
-    const index = this.state.tasks.map(task => task.id).indexOf(id);
-  this.setState(state => {
-    let {tasks} = state;
-    tasks[index].done = true;
-    return tasks;
-  });
-  };
-
-  deleteTask = id => {
-    const index = this.state.tasks.map(task => task.id).indexOf(id);
-  this.setState(state => {
-    let {tasks} = state;
-    delete tasks[index];
-    return tasks;
-    });
-  };
   render() {
-    const { tasks } = this.state;
-    const activeTasks = tasks.filter(task => !task.done);
-    const doneTasks = tasks.filter(task => task.done);
-
-    return(
+    const { sortedTasks, activeTasks } = store;
+    return (
       <div className="App">
-        <h1 className="top">Active tasks: {activeTasks.length}</h1>
-        {[...activeTasks, ...doneTasks].map(task => (
+        <h1 className="top">
+          Active tasks: {activeTasks}
+        </h1>
+        {sortedTasks.map(task => (
           <Task
-           doneTask={() => this.doneTask(task.id)}
-           deleteTask={() => this.deleteTask(task.id)}
-           task={task}
             key={task.id}
-            ></Task>
+            doneTask={() => store.doneTask(task.id)}
+            deleteTask={() => store.deleteTask(task.id)}
+            task={task}
+
+          ></Task>
         ))}
 
-        <TaskInput addTask={this.addTask}></TaskInput>
-
+        <TaskInput addTask={v => store.addTask(v)} />
       </div>
     );
   }
 }
-export default App;
+export default observer(App);
